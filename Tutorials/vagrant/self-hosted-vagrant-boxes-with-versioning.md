@@ -694,7 +694,7 @@ __What we did so far:__
 __What we will do now:__
  * Hosting the box catalog and the boxes on a webserver a.k.a. set up our own vagrant cloud.
  
-So cleanup your desk: exit your SSH session and destroy the vm.
+So cleanup your desk: exit your SSH session, destroy the vm and remove it from vagrant.
 
 ```bash
 $ exit # On guest
@@ -702,6 +702,7 @@ $ exit # On guest
 
 ```bash
 $ vagrant destroy # On host
+$ vagrant box remove 'devops'
 ```
  
 ## 5. Hosting
@@ -726,8 +727,210 @@ Keep on reading and you'll understand why.
               `- devops.json            # box catalog
 ```
 
-Translated to URLs we have three entities:
+Translated to URLs we have three targets to care about (we will use these later):
  * The catalog: http://www.example.com/vagrant/devops/devops.json
  * Box (v0.1.0): http://www.example.com/vagrant/devops/boxes/devops_0.1.0.box
  * Box (v0.1.1): http://www.example.com/vagrant/devops/boxes/devops_0.1.1.box
  
+### 5.2 Webserver configuration
+
+I want to explain the basic webserver configuration with nginx on a linux server, because this is my favorite software.
+The configuration can be ported to apache and/or windows as well.
+
+ * SSH into your server.
+ 
+```bash
+$ ssh user@example.com
+```
+
+ * Install nginx
+  
+```bash
+$ sudo apt-get install nginx-full
+```
+
+ * Create the target folders and set permissions
+ 
+```bash
+# Create folders
+$ sudo mkdir -p /var/www/vagrant/devops/boxes
+# Set owner to www-data
+$ sudo chown -R www-data:www-data /var/www
+# Set permissions
+$ sudo chmod -R 0751 /var/www
+```
+
+ * Delete the `default` sym-linked config for virtual hosts (vhost)
+  * Just to make sure there is no colliding config! 
+  
+```bash
+$ sudo rm -rf /etc/nginx/sites-enabled/default
+```
+
+ * Create a new specific vhost config for `www.example.com`
+  
+```bash
+sudo nano /etc/nginx/sites-available/example.com
+```
+
+... with the following content:
+
+```bash
+server {
+    listen   80 default_server;
+    listen   [::]:80 ipv6only=on default_server;
+    
+    server_name example.com www.example.com;
+
+    root /var/www;
+
+    # Match the box name in location and search for its catalog
+    # e.g. http://www.example.com/vagrant/devops/ resolves /var/www/vagrant/devops/devops.json  
+    location ~ ^/vagrant/([^\/]+)/$ {
+        index $1.json;
+        try_files $uri $uri/ $1.json =404;
+        autoindex off;
+    }
+
+    # Enable auto indexing for the folder with box files
+    location ~ ^/vagrant/([^\/]+)/boxes/$ {
+        try_files $uri $uri/ =404;
+        autoindex on;
+        autoindex_exact_size on;
+        autoindex_localtime on;
+    }
+
+    # Serve json files with content type header application/json
+    location ~ \.json$ {
+        add_header Content-type application/json;
+    }
+
+    # Serve box files with content type application/octet-stream
+    location ~ \.box$ {
+        add_header Content-type application/octet-stream;
+    }
+
+    # Deny access to document root and the vagrant folder
+    location ~ ^/(vagrant/)?$ {
+        return 403;
+    }
+}
+```
+
+ * Sym-link the vhost config to enable it
+ 
+```bash
+$ sudo ln -s /etc/nginx/sites-available/example.com /etc/nginx/sites-enabled/000-example.com
+```
+  
+ * Restart nginx and exit the webserver
+ 
+```bash
+$ service nginx restart
+$ exit
+```
+
+### 5.3 Change the box catalog
+
+Now, that our boxes won't be stored any longer on the local filesystem, we have to change their locations in the box catalog.
+
+ * Open `~/VagrantBoxes/devops.json` in your text editor and change the content to this:
+ 
+```json
+{
+    "name": "devops",
+    "description": "This box contains Ubuntu 14.04.1 LTS 64-bit.",
+    "versions": [{
+        "version": "0.1.0",
+        "providers": [{
+                "name": "virtualbox",
+                "url": "http://www.example.com/vagrant/devops/boxes/devops_0.1.0.box",
+                "checksum_type": "sha1",
+                "checksum": "d3597dccfdc6953d0a6eff4a9e1903f44f72ab94"
+        }]
+    },{
+        "version": "0.1.1",
+        "providers": [{
+                "name": "virtualbox",
+                "url": "http://www.example.com/vagrant/devops/boxes/devops_0.1.1.box",
+                "checksum_type": "sha1",
+                "checksum": "0b530d05896cfa60a3da4243d03eccb924b572e2"
+        }]
+    }]
+}
+```
+
+ * Upload this file to your webserver to directory `/var/www/vagrant/devops/`.
+ 
+If you open the URL http://www.example.com/vagrant/devops/ in your browser you should see your JSON box catalog.
+
+### 5.4 Upload your boxes
+
+ * Upload both box files to your webserver to directory `/var/www/vagrant/devops/boxes/`.
+ 
+If you open the URL http://www.example.com/vagrant/devops/boxes/ in your browser you should see a directory 
+listing with both box files listed.
+ 
+### 5.5 Change the `Vagrantfile`
+
+ * Change into the `~/VagrantTest` directory on your host.
+  
+```bash
+$ cd ~/VagrantTest
+```
+
+ * Open the `Vagrantfile` file in your text editor
+
+```json
+# Change the line
+config.vm.box_url = "file://~/VagrantBoxes/devops.json"
+# to
+config.vm.box_url = "http://www.example.com/vagrant/devops/"
+# save the file
+```
+
+### 5.6 Get finally up and running
+
+ * Bring up the machine
+ 
+```bash
+$ vagrant up
+Bringing machine 'default' up with 'virtualbox' provider...
+==> default: Box 'devops' could not be found. Attempting to find and install...
+    default: Box Provider: virtualbox
+    default: Box Version: >= 0
+==> default: Loading metadata for box 'http://www.example.com/vagrant/devops/'
+    default: URL: http://www.example.com/vagrant/devops/
+==> default: Adding box 'devops' (v0.1.1) for provider: virtualbox
+    default: Downloading: http://www.example.com/vagrant/devops/boxes/devops_0.1.1.box
+    default: Calculating and comparing box checksum...
+==> default: Successfully added box 'devops' (v0.1.1) for 'virtualbox'!
+==> default: Importing base box 'devops'...
+==> default: Matching MAC address for NAT networking...
+==> default: Checking if box 'devops' is up to date...
+==> default: Setting the name of the VM: VagrantTest_default_1406660957112_34972
+==> default: Clearing any previously set network interfaces...
+==> default: Preparing network interfaces based on configuration...
+    default: Adapter 1: nat
+==> default: Forwarding ports...
+    default: 22 => 2222 (adapter 1)
+==> default: Booting VM...
+==> default: Waiting for machine to boot. This may take a few minutes...
+    default: SSH address: 127.0.0.1:2222
+    default: SSH username: vagrant
+    default: SSH auth method: private key
+    default: Warning: Connection timeout. Retrying...
+    default: Warning: Remote connection disconnect. Retrying...
+==> default: Machine booted and ready!
+==> default: Checking for guest additions in VM...
+==> default: Mounting shared folders...
+    default: /vagrant => ~/VagrantTest
+```
+
+**And here it is: Your own vagrant cloud!**
+
+## Epilog
+
+ * Please trigger fixes to this tutorial as an issue to this repo here on github
+ * For questions you can find me in the [vagrant google group](https://groups.google.com/forum/#!usersettings/general)
+ * Thanks for reading, I hope this helps boosting your environment!
