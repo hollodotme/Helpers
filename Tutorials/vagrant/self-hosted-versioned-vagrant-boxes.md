@@ -41,16 +41,16 @@ and [Vagrant](http://vagrantup.com) at version 1.6.3.
  
 #### Configure the guest
 
-  * Select the vm named `devops-template` in VirtualBox GUI and click `Start` (wait until you see the `ubuntu-amd64 login:`) 
-  * Type `ubuntu` as loginname an `reverse` as password.
-  * First of all, update the machine. This will take a moment. Get a coffee!
+ * Select the vm named `devops-template` in VirtualBox GUI and click `Start` (wait until you see the `ubuntu-amd64 login:`) 
+ * Type `ubuntu` as loginname an `reverse` as password.
+ * First of all, update the machine. This will take a moment. Get a coffee!
   
 ```bash
 $ sudo apt-get update
 $ sudo apt-get dist-upgrade -y
 ```
 
-  * Edit the file `/root/.profile`
+ * Edit the file `/root/.profile`
    
 ```bash
 $ sudo nano /root/.profile
@@ -65,15 +65,15 @@ fi
 mesg n # replace this line by "tty -s && mesg n"
 ```
 
-Note: This avoids an annoying warning, when you vagrant up later.
+Note: This avoids an annoying warning, when you `vagrant up` later.
 
-  * Change the hostname
+ * Change the hostname
   
 ```bash
 $ sudo nano /etc/hostname
 ubuntu-amd64 # replace this by "devops-template"
 ```
-  * Let the machine resolve its own hostname
+ * Let the machine resolve its own hostname
   
 ```bash
 $ sudo nano /etc/hosts
@@ -85,3 +85,91 @@ $ sudo nano /etc/hosts
 ff02::1     ip6-allnodes
 ff02::2     ip6-allrouters
 ```
+
+ * Finalize language settings
+  
+```bash
+$ sudo locale-gen en_US.UTF-8 # Or whatever language you want to use
+$ sudo dpkg-reconfigure locales
+$ sudo nano /etc/default/locale
+LANG="en_US.UTF-8"
+LANGUAGE="en_US"
+```
+
+ * Add the `vagrant` user
+  
+```bash
+$ sudo adduser vagrant
+# Set the password to "vargrant" too!
+# Set the Full Name to "Vagrant", leave the rest blank
+```
+
+ * Allow Vagrant to login via insecure private key
+   
+```bash
+# Add a ssh config folder and authorized_keys file
+$ sudo mkdir /home/vagrant/.ssh
+$ sudo touch /home/vagrant/.ssh/authorized_keys
+# Set owner and permissions
+$ sudo chown -R vagrant /home/vagrant/.ssh
+$ sudo chmod 0700 /home/vagrant/.ssh
+$ sudo chmod 0600 /home/vagrant/.ssh/authorized_keys
+# Add the insecure public key, see https://github.com/mitchellh/vagrant/tree/master/keys
+$ su vagrant
+$ curl 'https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant.pub' >> /home/vagrant/.ssh/authorized_keys
+$ exit
+```
+
+ * Configure the sudo rights of user `vagrant`
+
+```bash
+$ sudo nano /etc/sudoers.d/vagrant
+vagrant ALL=(ALL) NOPASSWD: ALL
+$ sudo chmod 0440 /etc/sudoers.d/vagrant
+```
+
+ * Disable DNS usage for sshd
+ 
+```bash
+$ sudo nano /etc/ssh/sshd_config
+# Add the following line at the end of the file:
+UseDNS no
+```
+
+ * **Last but not least:** Change the welcome message and add the version number. We will change this later to see versioning work.
+  
+```bash
+$ rm -rf /etc/motd
+$ sudo nano /etc/modt
+Welcome to devops-template version 0.1.0!
+```
+
+ * Reboot the vm to see your changes take effect:
+ 
+```bash
+$ sudo shutdown -r now
+```
+
+Now you should see a login terminal like this:
+
+```bash
+Ubuntu 14.04.1 LTS devops-template tty1
+
+devops-template login: _
+```
+
+Login and check the message of the day (motd) we set up:
+
+```bash
+Last login: ...
+Welcome to Ubuntu ...
+
+ * Documentation: ...
+ 
+ [...]
+ 
+Welcome to devops-template version 0.1.0!
+ubuntu@devops-template:~$ _
+```
+
+Got it? Yeah!
