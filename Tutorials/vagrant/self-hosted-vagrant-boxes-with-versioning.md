@@ -802,12 +802,12 @@ server {
 
     # Serve json files with content type header application/json
     location ~ \.json$ {
-        add_header Content-type application/json;
+        add_header Content-Type application/json;
     }
 
     # Serve box files with content type application/octet-stream
     location ~ \.box$ {
-        add_header Content-type application/octet-stream;
+        add_header Content-Type application/octet-stream;
     }
 
     # Deny access to document root and the vagrant folder
