@@ -11,13 +11,13 @@ Before we start setting things up, I assume this is what you know / what you hav
  * A host system with a GUI (e.g. Windows, Mac OS X, etc.)
 
 The tutorial uses an installation of [Ubuntu 14.04.1 LTS](https://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) 
-as the guest machine, [VirtualBox](http://virtualbox.org) at version 4.3.14 as provider 
-and [Vagrant](http://vagrantup.com) at version 1.6.3.
+as the guest machine, [VirtualBox](http://virtualbox.org) at version 4.3.16 as provider 
+and [Vagrant](http://vagrantup.com) at version 1.6.5.
 
 ## 1. Install the tools
 
- * Download and install VirtualBox 4.3.14 at http://download.virtualbox.org/virtualbox/4.3.14/ (Choose the installer that fits your system)
- * Download and install Vagrant 1.6.3 at https://dl.bintray.com/mitchellh/vagrant/ (Choose the installer that fits your system)
+ * Download and install VirtualBox 4.3.16 at http://download.virtualbox.org/virtualbox/4.3.16/ (Choose the installer that fits your system)
+ * Download and install Vagrant 1.6.5 at https://dl.bintray.com/mitchellh/vagrant/ (Choose the installer that fits your system)
 
 ## 2. Prepare your virtual machine
  
@@ -139,21 +139,21 @@ UseDNS no
  * **Important:** Install the VirtualBox Guest Additions __with the proper version__
  
 Hint: Do not install the guest additions with `apt-get install virtualbox-guest-additions-iso` as this release is mostly outdated.
-I said above that I'm using VirtualBox in Version `4.3.14`, so the guest additions should be of the same version.
+I said above that I'm using VirtualBox in Version `4.3.16`, so the guest additions should be of the same version.
 
 ```bash
 # prepare
 $ sudo apt-get install -y linux-headers-generic build-essential dkms
 # get the right ISO from http://download.virtualbox.org/virtualbox/
-$ wget http://download.virtualbox.org/virtualbox/4.3.14/VBoxGuestAdditions_4.3.14.iso
+$ wget http://download.virtualbox.org/virtualbox/4.3.16/VBoxGuestAdditions_4.3.16.iso
 # create a mount folder
 $ sudo mkdir /media/VBoxGuestAdditions
 # mount the ISO
-$ sudo mount -o loop,ro VBoxGuestAdditions_4.3.14.iso /media/VBoxGuestAdditions
+$ sudo mount -o loop,ro VBoxGuestAdditions_4.3.16.iso /media/VBoxGuestAdditions
 # install the guest additions
 $ sudo sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run
 # remove the ISO
-$ rm VBoxGuestAdditions_4.3.14.iso
+$ rm VBoxGuestAdditions_4.3.16.iso
 # unmount the ISO
 $ sudo umount /media/VBoxGuestAdditions
 # remove the mount folder
