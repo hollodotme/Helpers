@@ -113,7 +113,7 @@ class ReflectionExtension
 	public function exportPHAR( $phar_name, $output_dir = '.', $create_sub_directories = true )
 	{
 		ini_set( 'phar.readonly', 0 );
-		$temp_dir = '/tmp' . DIRECTORY_SEPARATOR . 'PHPExport_' . rand( 1, 9999 );
+		$temp_dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'PHPExport_' . rand( 1, 9999 );
 
 		if ( !file_exists( $temp_dir ) && !@mkdir( $temp_dir ) )
 		{
