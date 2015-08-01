@@ -10,20 +10,20 @@ Before we start setting things up, I assume this is what you know / what you hav
  * A public or private webserver where you can run/configure a webserver (nginx/apache2) and upload/download files.
  * A host system with a GUI (e.g. Windows, Mac OS X, etc.)
 
-The tutorial uses an installation of [Ubuntu 14.04.1 LTS](https://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) 
-as the guest machine, [VirtualBox](http://virtualbox.org) at version 4.3.16 as provider 
-and [Vagrant](http://vagrantup.com) at version 1.6.5.
+The tutorial uses an installation of [Ubuntu 14.04.2 LTS](https://wiki.ubuntu.com/TrustyTahr/ReleaseNotes) 
+as the guest machine, [VirtualBox](http://virtualbox.org) at version 5.0.0 as provider 
+and [Vagrant](http://vagrantup.com) at version 1.7.4.
 
 ## 1. Install the tools
 
- * Download and install VirtualBox 4.3.16 at http://download.virtualbox.org/virtualbox/4.3.16/ (Choose the installer that fits your system)
- * Download and install Vagrant 1.6.5 at https://dl.bintray.com/mitchellh/vagrant/ (Choose the installer that fits your system)
+ * Download and install VirtualBox 5.0.0 at http://download.virtualbox.org/virtualbox/5.0.0/ (Choose the installer that fits your system)
+ * Download and install Vagrant 1.7.4 at https://dl.bintray.com/mitchellh/vagrant/ (Choose the installer that fits your system)
 
 ## 2. Prepare your virtual machine
  
 ### 2.1 Import an Ubuntu image to VirtualBox
  
- * Download a VirtualBox image of Ubuntu 14.04.1 LTS, e.g. at http://virtualboxes.org/images/ubuntu-server/ (all the following steps refer to this image)
+ * Download a VirtualBox image of Ubuntu 14.04.2 LTS, e.g. at http://virtualboxes.org/images/ubuntu-server/ (all the following steps refer to this image)
  * Open the VirtualBox GUI and choose `File > Import appliance ...`, select the `.ova` file you downloaded before.
  * Change the appliance settings to fit your needs, for now I'll only change the name of the machine from `ubuntu-14.04-server-amd64` to `devops-template`.
  * Important: Make sure to activate `Reinitialize the MAC address of all network cards` checkbox!
@@ -139,21 +139,21 @@ UseDNS no
  * **Important:** Install the VirtualBox Guest Additions __with the proper version__
  
 Hint: Do not install the guest additions with `apt-get install virtualbox-guest-additions-iso` as this release is mostly outdated.
-I said above that I'm using VirtualBox in Version `4.3.16`, so the guest additions should be of the same version.
+I said above that I'm using VirtualBox in Version `5.0.0`, so the guest additions should be of the same version.
 
 ```bash
 # prepare
 $ sudo apt-get install -y linux-headers-generic build-essential dkms
 # get the right ISO from http://download.virtualbox.org/virtualbox/
-$ wget http://download.virtualbox.org/virtualbox/4.3.16/VBoxGuestAdditions_4.3.16.iso
+$ wget http://download.virtualbox.org/virtualbox/5.0.0/VBoxGuestAdditions_5.0.0.iso
 # create a mount folder
 $ sudo mkdir /media/VBoxGuestAdditions
 # mount the ISO
-$ sudo mount -o loop,ro VBoxGuestAdditions_4.3.16.iso /media/VBoxGuestAdditions
+$ sudo mount -o loop,ro VBoxGuestAdditions_5.0.0.iso /media/VBoxGuestAdditions
 # install the guest additions
 $ sudo sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run
 # remove the ISO
-$ rm VBoxGuestAdditions_4.3.16.iso
+$ rm VBoxGuestAdditions_5.0.0.iso
 # unmount the ISO
 $ sudo umount /media/VBoxGuestAdditions
 # remove the mount folder
@@ -179,7 +179,7 @@ $ sudo shutdown -r now
 Now you should see a login terminal like this:
 
 ```bash
-Ubuntu 14.04.1 LTS devops-template tty1
+Ubuntu 14.04.2 LTS devops-template tty1
 
 devops-template login: _
 ```
@@ -382,7 +382,7 @@ cd ~/VagrantBoxes
 ```json
 {
     "name": "devops",
-    "description": "This box contains Ubuntu 14.04.1 LTS 64-bit.",
+    "description": "This box contains Ubuntu 14.04.2 LTS 64-bit.",
     "versions": [{
         "version": "0.1.0",
         "providers": [{
