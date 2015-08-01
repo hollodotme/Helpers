@@ -128,7 +128,7 @@ class ReflectionClass
 
 		if ( empty($content) )
 		{
-			throw new \Exception( "Got no content from export for class {$this->_classname->getName()}" );
+			throw new \Exception( "Got no content from export for class {$this->_reflection_class->getName()}" );
 		}
 
 		$result = file_put_contents( $file_path, $content );
