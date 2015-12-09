@@ -934,3 +934,7 @@ Bringing machine 'default' up with 'virtualbox' provider...
  * Please trigger fixes to this tutorial as an issue to this repo here on github
  * For questions you can find me in the [vagrant google group](https://groups.google.com/forum/#!usersettings/general)
  * Thanks for reading, I hope this helps boosting your environment!
+
+## Further reading
+
+ * [Sets up a nginx server which hosts vagrant boxes](https://github.com/ebmeierj/local_vagrant_box_hosting) by [ebmeierj](https://github.com/ebmeierj)
