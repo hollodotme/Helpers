@@ -164,7 +164,7 @@ $ sudo rmdir /media/VBoxGuestAdditions
   
 ```bash
 $ rm -rf /etc/motd
-$ sudo nano /etc/modt
+$ sudo nano /etc/motd
 --
 Welcome to devops-template version 0.1.0!
 --
